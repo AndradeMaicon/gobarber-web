@@ -28,54 +28,64 @@ const SignIn: React.FC = () => {
   const { signIn } = useAuth();
   const { addToast } = useToast();
 
-  const handleSubmit = useCallback(async (data: SignInFormData) => {
-    try {
-      formRef.current?.setErrors({});
+  const handleSubmit = useCallback(
+    async (data: SignInFormData) => {
+      try {
+        formRef.current?.setErrors({});
 
-      const schema = Yup.object().shape({
-        email: Yup.string().required('E-mail obrigatorio').email('Digite em e-mail valido'),
-        password: Yup.string().required('Senha obrigatoria'),
-      })
+        const schema = Yup.object().shape({
+          email: Yup.string()
+            .required('E-mail obrigatorio')
+            .email('Digite em e-mail valido'),
+          password: Yup.string().required('Senha obrigatoria'),
+        });
 
-      await schema.validate(data, {
-        abortEarly: false,
-      });
+        await schema.validate(data, {
+          abortEarly: false,
+        });
 
-      await signIn({
-        email: data.email,
-        password: data.password,
-      });
+        await signIn({
+          email: data.email,
+          password: data.password,
+        });
 
-      history.push('/dashboard');
-    } catch (err) {
-      if (err instanceof Yup.ValidationError) {
-        const errors = getValidationErrors(err);
+        history.push('/dashboard');
+      } catch (err) {
+        if (err instanceof Yup.ValidationError) {
+          const errors = getValidationErrors(err);
 
-        formRef.current?.setErrors(errors);
+          formRef.current?.setErrors(errors);
 
-        return;
+          return;
+        }
+
+        addToast({
+          type: 'info',
+          title: 'Erro de autenticacao',
+          description: 'Ocorreu um erro ao fazer login, cheque as credenciais.',
+        });
       }
-
-      addToast({
-        type: 'info',
-        title: 'Erro de autenticacao',
-        description: 'Ocorreu um erro ao fazer login, cheque as credenciais.',
-      });
-    }
-  }, [signIn, addToast, history]);
+    },
+    [signIn, addToast, history],
+  );
 
   return (
     <Container>
       <Content>
         <AnimationContainer>
-          <img src={logoImg} alt="GoBarber"/>
+          <img src={logoImg} alt="GoBarber" />
 
           <Form ref={formRef} onSubmit={handleSubmit}>
             <h1>Faca seu login</h1>
 
-            <Input name="email" icon={FiMail} placeholder="E-mail"/>
+            <Input name="email" icon={FiMail} placeholder="E-mail" />
 
-            <Input name="password" icon={FiLock} type="password" placeholder="Senha"/>
+            <Input
+              name="password"
+              icon={FiLock}
+              type="password"
+              placeholder="Senha"
+            />
 
             <Button type="submit">Entrar</Button>
 

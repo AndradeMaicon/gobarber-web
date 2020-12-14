@@ -28,63 +28,79 @@ const ResetPassword: React.FC = () => {
   const location = useLocation();
   const { addToast } = useToast();
 
-  const handleSubmit = useCallback(async (data: ResetPasswordFormData) => {
-    try {
-      formRef.current?.setErrors({});
+  const handleSubmit = useCallback(
+    async (data: ResetPasswordFormData) => {
+      try {
+        formRef.current?.setErrors({});
 
-      const schema = Yup.object().shape({
-        password: Yup.string().required('Senha obrigatoria'),
-        password_confirmation: Yup.string()
-          .oneOf([Yup.ref('password'), undefined], 'As senhas nao batem')
-      })
+        const schema = Yup.object().shape({
+          password: Yup.string().required('Senha obrigatoria'),
+          password_confirmation: Yup.string().oneOf(
+            [Yup.ref('password'), undefined],
+            'As senhas nao batem',
+          ),
+        });
 
-      await schema.validate(data, {
-        abortEarly: false,
-      });
+        await schema.validate(data, {
+          abortEarly: false,
+        });
 
-      const { password, password_confirmation } = data;
-      const token = location.search.replace('?token=', '');
+        const { password, password_confirmation } = data;
+        const token = location.search.replace('?token=', '');
 
-      if (!token) {
-        throw new Error();
+        if (!token) {
+          throw new Error();
+        }
+
+        await api.post('/password/reset', {
+          password,
+          password_confirmation,
+          token,
+        });
+
+        history.push('/');
+      } catch (err) {
+        if (err instanceof Yup.ValidationError) {
+          const errors = getValidationErrors(err);
+
+          formRef.current?.setErrors(errors);
+
+          return;
+        }
+
+        addToast({
+          type: 'info',
+          title: 'Erro de restear senha',
+          description:
+            'Ocorreu um erro ao resetar sua senha, por favor tente novamente.',
+        });
       }
-
-      await api.post('/password/reset', {
-        password,
-        password_confirmation,
-        token,
-      })
-
-      history.push('/');
-    } catch (err) {
-      if (err instanceof Yup.ValidationError) {
-        const errors = getValidationErrors(err);
-
-        formRef.current?.setErrors(errors);
-
-        return;
-      }
-
-      addToast({
-        type: 'info',
-        title: 'Erro de restear senha',
-        description: 'Ocorreu um erro ao resetar sua senha, por favor tente novamente.',
-      });
-    }
-  }, [addToast, history, location.search]);
+    },
+    [addToast, history, location.search],
+  );
 
   return (
     <Container>
       <Content>
         <AnimationContainer>
-          <img src={logoImg} alt="GoBarber"/>
+          <img src={logoImg} alt="GoBarber" />
 
           <Form ref={formRef} onSubmit={handleSubmit}>
             <h1>Alterar senha</h1>
 
-            <Input name="password" icon={FiLock} type="password" placeholder="Nova senha"/>
+            <Input
+              name="password"
+              icon={FiLock}
+              type="password"
+              placeholder="Nova senha"
+            />
 
-            <Input name="password_confirmation" icon={FiLock} type="password" placeholder="Confirmacao de senha"/>
+            <Input
+              name="password_confirmation"
+              icon={FiLock}
+              type="password"
+              placeholder="Confirmacao de senha"
+            />
 
             <Button type="submit">Alterar senha</Button>
           </Form>

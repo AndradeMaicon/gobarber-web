@@ -1,9 +1,9 @@
 import styled, { css } from 'styled-components';
-import { animated } from 'react-spring'
+import { animated } from 'react-spring';
 
 interface ContainerProps {
   type?: 'success' | 'error' | 'info';
-  hasDescription: number;
+  $hasDescription: number;
 }
 
 const toasTypeVariations = {
@@ -19,7 +19,7 @@ const toasTypeVariations = {
     background: #fddede;
     color: #c53030;
   `,
-}
+};
 export const Container = styled(animated.div)<ContainerProps>`
   width: 360px;
 
@@ -34,7 +34,7 @@ export const Container = styled(animated.div)<ContainerProps>`
     margin-top: 8px;
   }
 
-  ${(props) => toasTypeVariations[props.type || 'info']}
+  ${props => toasTypeVariations[props.type || 'info']}
 
   > svg {
     margin: 4px 12px 0 0;
@@ -51,7 +51,7 @@ export const Container = styled(animated.div)<ContainerProps>`
     }
   }
 
-  button{
+  button {
     position: absolute;
     right: 16px;
     top: 19px;
@@ -61,11 +61,13 @@ export const Container = styled(animated.div)<ContainerProps>`
     color: inherit;
   }
 
-  ${props => !props.hasDescription && css`
-    align-items: center;
+  ${props =>
+    !props.$hasDescription &&
+    css`
+      align-items: center;
 
-    svg {
-      margin-top: 0;
-    }
-  `}
+      svg {
+        margin-top: 0;
+      }
+    `}
 `;
